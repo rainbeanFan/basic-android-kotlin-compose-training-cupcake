@@ -15,6 +15,11 @@
  */
 package com.example.cupcake
 
+import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,13 +27,48 @@ import androidx.activity.enableEdgeToEdge
 import com.example.cupcake.ui.theme.CupcakeTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val mShortcutManager by lazy { getSystemService(ShortcutManager::class.java) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             CupcakeTheme {
                 CupcakeApp()
+
+                initShortcuts()
+
             }
         }
     }
+
+    private fun initShortcuts() {
+        mShortcutManager?.let { shortcutManager ->
+            val shortcutList = mutableListOf<ShortcutInfo>()
+            val intent = if (false) Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://www.baidu.com")
+            ) else Intent(Intent.ACTION_MAIN, null, this, MainActivity::class.java)
+            shortcutList.add(
+                ShortcutInfo.Builder(this, "shortcut_id_2")
+                    .setShortLabel(getString(R.string.shortcut_label))
+                    .setLongLabel(getString(R.string.shortcut_long_label))
+                    .setIcon(Icon.createWithResource(this, R.drawable.cupcake))
+                    .setIntent(intent)
+                    .build()
+            )
+            shortcutList.add(
+                ShortcutInfo.Builder(this, "shortcut_id_1")
+                    .setShortLabel(getString(R.string.shortcut_label))
+                    .setLongLabel(getString(R.string.shortcut_long_label))
+                    .setIcon(Icon.createWithResource(this, R.drawable.cupcake))
+                    .setIntent(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.baidu.com")))
+                    .build()
+            )
+
+            shortcutManager.setDynamicShortcuts(shortcutList)
+        }
+    }
+
 }
